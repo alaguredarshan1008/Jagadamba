@@ -1,0 +1,8 @@
+{
+  "name": "Jagadamba Hi-tech Nursery",
+  "description": "Premium plant nursery specialized in high-quality Sugarcane seedlings (Co. 86032, Co. 0265, Co. 10001, Co. 8005) and vegetable nursery crops. Offers professional sugarcane growing techniques, fertilization calendars, crop booking, and transport services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
