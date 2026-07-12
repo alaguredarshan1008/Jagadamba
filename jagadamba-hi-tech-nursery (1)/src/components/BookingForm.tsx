@@ -60,9 +60,9 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       return {
         name: variety?.name || 'Sugarcane Seedlings',
         marathiName: variety?.marathiName || 'उसाची रोपे',
-        pricePerTray: 150, // 100 seedlings * 1.50 = 150
-        seedlingsPerTray: 100,
-        pricePerSeedling: 1.50,
+        pricePerTray: 154, // 100 seedlings * 1.50 = 150
+        seedlingsPerTray: 70,
+        pricePerSeedling: 2.20,
       };
     } else {
       const variety = VEGETABLE_VARIETIES.find((v) => v.id === vegetableVariety);
@@ -281,7 +281,7 @@ ${b.notes ? `- अतिरिक्त नोंद: ${b.notes}` : ''}
                 >
                   {SUGARCANE_VARIETIES.map((v) => (
                     <option key={v.id} value={v.id}>
-                      {v.marathiName} ({v.name}) - ₹१.५०/रोप (₹१५०/ट्रे)
+                      {v.marathiName} ({v.name}) - ₹2.20/रोप (₹154/ट्रे)
                     </option>
                   ))}
                 </select>
@@ -563,7 +563,7 @@ ${b.notes ? `- अतिरिक्त नोंद: ${b.notes}` : ''}
                 <span className="text-2xl font-black text-emerald-800">
                   ₹{(() => {
                     const isWatermelon = receiptBooking.vegetableVariety?.includes('टरबूज') || receiptBooking.vegetableVariety?.includes('कलिंगड') || receiptBooking.vegetableVariety?.includes('Watermelon');
-                    const pricePerTray = receiptBooking.cropType === 'sugarcane' ? 150 : (isWatermelon ? 50 : 104);
+                    const pricePerTray = receiptBooking.cropType === 'sugarcane' ? 154 : (isWatermelon ? 50 : 104);
                     return (receiptBooking.quantity * pricePerTray).toLocaleString();
                   })()}
                 </span>
