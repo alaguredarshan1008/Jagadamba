@@ -44,7 +44,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     .filter((b) => b.status !== 'cancelled')
     .reduce((sum, b) => {
       if (b.cropType === 'sugarcane') {
-        return sum + (b.quantity * 150);
+        return sum + (b.quantity * 154);
       } else {
         const isWatermelon = b.vegetableVariety?.includes('टरबूज') || b.vegetableVariety?.includes('कलिंगड') || b.vegetableVariety?.includes('Watermelon');
         const pricePerTray = isWatermelon ? 50 : 104;
