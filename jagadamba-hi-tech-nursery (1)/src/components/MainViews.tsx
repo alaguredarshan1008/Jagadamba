@@ -349,7 +349,7 @@ export const ContactView: React.FC = () => {
                 </div>
               </div>
               <a
-                href="tel:7406719207"
+                href="tel:7406719095"
                 className="bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-4 py-2 rounded-lg text-xs flex items-center gap-1.5 transition-colors shadow-sm active:scale-95 shrink-0"
               >
                 <Phone size={12} />
