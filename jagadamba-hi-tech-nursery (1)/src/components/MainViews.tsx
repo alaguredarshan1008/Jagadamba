@@ -139,7 +139,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigateToBooking }) => {
                     </div>
                     <div>
                       <span className="text-gray-400 font-semibold block">अंदाजे दर (Price)</span>
-                      <strong className="text-emerald-800 text-[11px] sm:text-xs font-black">₹१.५०/रोप</strong>
+                      <strong className="text-emerald-800 text-[11px] sm:text-xs font-black">₹2.20/रोप</strong>
                     </div>
                   </div>
                   <button
