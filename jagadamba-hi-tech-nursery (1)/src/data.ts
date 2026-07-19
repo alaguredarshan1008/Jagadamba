@@ -25,6 +25,33 @@ export const IMAGES = {
   owner,
 };
 
+// --- PRICE CONFIGURATION ---
+// You can manually edit the Sugarcane prices here.
+// These values will automatically update across the entire app (Booking Form, Catalog, and Receipts).
+export const SUGARCANE_PRICE = {
+  pricePerSeedling: 1.50, // Price in Rupees per individual sugarcane seedling (e.g., 1.50)
+  pricePerTray: 150,      // Price in Rupees per sugarcane tray (100 seedlings * 1.50 = 150)
+};
+
+// --- CONTACT CONFIGURATION ---
+// You can manually edit the contact phone numbers here.
+// These values will automatically update across the entire app.
+export const CONTACT_INFO = {
+  primaryPhone: '8722273224',            // Primary phone number for calling/WhatsApp
+  primaryPhoneDisplay: '+91 87222 73224',  // Formatting for screen display
+  secondaryPhone: '7406719207',          // Secondary phone number
+  secondaryPhoneDisplay: '+91 74067 19207',// Formatting for screen display
+  ownerName: 'सुशांत देसाई',                // Owner Name in Marathi
+  ownerNameEnglish: 'Sushant Desai',       // Owner Name in English
+};
+
+// --- ADMIN SECURITY CONFIGURATION ---
+// You can manually edit the admin passcode here.
+// Only people who know this passcode can access the Admin Desk.
+export const ADMIN_SECURITY = {
+  adminPasscode: '8722', // Default 4-digit PIN passcode
+};
+
 export const SUGARCANE_VARIETIES: SugarcaneVariety[] = [
   {
     id: 'co-86032',
@@ -108,7 +135,7 @@ export const VEGETABLE_VARIETIES: VegetableVariety[] = [
     pricePerTray: 104, // 104 seedlings * ₹1.00 = ₹104 per tray
     seedlingsPerTray: 104,
     features: [
-      'लवकर कळ्या येणे (Early flowering initiates)',
+      'लवकर कळ्या याणे (Early flowering initiates)',
       'घट्ट आणि मोठी फुले मिळतात (Compact, large size flowers)',
       'बाजारात चांगली किंमत मिळवून देणारी रोपे (High market demand)'
     ],
