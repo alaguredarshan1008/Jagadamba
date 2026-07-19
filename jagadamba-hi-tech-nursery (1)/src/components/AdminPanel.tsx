@@ -4,8 +4,9 @@
  */
 
 import React, { useState } from 'react';
-import { ClipboardList, Users, TrendingUp, Truck, Trash2, Search, RotateCcw, AlertCircle, Sparkles, Filter, CheckCircle } from 'lucide-react';
+import { ClipboardList, Users, TrendingUp, Truck, Trash2, Search, RotateCcw, AlertCircle, Sparkles, Filter, CheckCircle, Lock, Unlock, KeyRound, Eye, EyeOff, LogOut } from 'lucide-react';
 import { Booking, BookingStatus } from '../types';
+import { SUGARCANE_PRICE, ADMIN_SECURITY, CONTACT_INFO } from '../data';
 
 interface AdminPanelProps {
   bookings: Booking[];
@@ -21,10 +22,58 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onDeleteBooking,
   onResetBookings,
   onLoadDemoBookings
-}) => {
+ }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('jhn_admin_authenticated') === 'true';
+  });
+  const [currentPasscode, setCurrentPasscode] = useState<string>(() => {
+    return localStorage.getItem('jhn_admin_passcode') || ADMIN_SECURITY.adminPasscode;
+  });
+  const [enteredPasscode, setEnteredPasscode] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [showPasscode, setShowPasscode] = useState(false);
+
+  const [isChangingPasscode, setIsChangingPasscode] = useState(false);
+  const [newPasscodeVal, setNewPasscodeVal] = useState('');
+  const [passcodeSuccessMsg, setPasscodeSuccessMsg] = useState('');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'sugarcane' | 'vegetable'>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  const handleLogin = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (enteredPasscode === currentPasscode) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('jhn_admin_authenticated', 'true');
+      setErrorMsg('');
+    } else {
+      setErrorMsg('चुकीचा पासवर्ड! कृपया पुन्हा प्रयत्न करा. (Incorrect passcode!)');
+      setEnteredPasscode('');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('jhn_admin_authenticated');
+    setEnteredPasscode('');
+  };
+
+  const handleSaveNewPasscode = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPasscodeVal || newPasscodeVal.trim().length < 4) {
+      alert('पासकोड किमान ४ अंकी असणे आवश्यक आहे! (Passcode must be at least 4 digits!)');
+      return;
+    }
+    localStorage.setItem('jhn_admin_passcode', newPasscodeVal.trim());
+    setCurrentPasscode(newPasscodeVal.trim());
+    setPasscodeSuccessMsg('पासकोड यशस्वीरित्या बदलला आहे! (Passcode updated successfully!)');
+    setNewPasscodeVal('');
+    setTimeout(() => {
+      setPasscodeSuccessMsg('');
+      setIsChangingPasscode(false);
+    }, 3000);
+  };
 
   // Calculate statistics
   const totalBookings = bookings.length;
@@ -37,14 +86,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     .reduce((sum, b) => sum + b.totalSeedlings, 0);
   
   // Dynamic estimated value calculation:
-  // Sugarcane has 100 seedlings per tray @ ₹1.50 = ₹150 per tray
+  // Sugarcane uses SUGARCANE_PRICE.pricePerTray
   // Watermelon has 50 seedlings per tray @ ₹1.00 = ₹50 per tray
   // Others have 104 seedlings per tray @ ₹1.00 = ₹104 per tray
   const totalEstimatedValue = bookings
     .filter((b) => b.status !== 'cancelled')
     .reduce((sum, b) => {
       if (b.cropType === 'sugarcane') {
-        return sum + (b.quantity * 154);
+        return sum + (b.quantity * SUGARCANE_PRICE.pricePerTray);
       } else {
         const isWatermelon = b.vegetableVariety?.includes('टरबूज') || b.vegetableVariety?.includes('कलिंगड') || b.vegetableVariety?.includes('Watermelon');
         const pricePerTray = isWatermelon ? 50 : 104;
@@ -108,8 +157,163 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+        <div className="bg-emerald-900 px-6 py-8 text-center text-white relative">
+          <div className="absolute top-4 right-4 bg-emerald-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded tracking-wider border border-emerald-700">
+            Secure Desk
+          </div>
+          <div className="mx-auto w-16 h-16 bg-amber-400 text-emerald-950 rounded-full flex items-center justify-center shadow-lg border-4 border-emerald-900 mb-4 animate-bounce">
+            <Lock size={30} />
+          </div>
+          <h2 className="text-2xl font-black tracking-tight">प्रशासन कक्ष (Admin Desk)</h2>
+          <p className="text-emerald-100/90 text-xs mt-1">
+            सुरक्षितता पडताळणी • Security Verification
+          </p>
+        </div>
+
+        <form onSubmit={handleLogin} className="p-8 space-y-6">
+          <div className="space-y-2">
+            <label className="block text-xs font-black text-gray-700 uppercase tracking-widest">
+              पासकोड प्रविष्ट करा (Enter Admin PIN)
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                <KeyRound size={18} />
+              </span>
+              <input
+                type={showPasscode ? "text" : "password"}
+                maxLength={8}
+                value={enteredPasscode}
+                onChange={(e) => {
+                  setEnteredPasscode(e.target.value);
+                  if (errorMsg) setErrorMsg('');
+                }}
+                placeholder="••••"
+                className="block w-full pl-10 pr-10 py-3 text-center text-xl font-bold tracking-widest bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all placeholder:text-gray-300"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasscode(!showPasscode)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                {showPasscode ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            
+            {errorMsg && (
+              <div className="text-rose-600 text-xs font-bold mt-1.5 flex items-center gap-1.5 justify-center bg-rose-50 p-2.5 rounded-lg border border-rose-100">
+                <span className="inline-block w-1.5 h-1.5 bg-rose-600 rounded-full animate-ping shrink-0" />
+                {errorMsg}
+              </div>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={!enteredPasscode}
+            className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-black py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+          >
+            <Unlock size={18} />
+            <span>अनलॉक करा (Verify PIN)</span>
+          </button>
+
+          <div className="border-t border-gray-100 pt-5 text-center">
+            <p className="text-[11px] text-gray-500 leading-relaxed font-medium">
+              हा विभाग फक्त नर्सरी प्रशासन आणि मालक यांच्यासाठी राखीव आहे. 
+              तुमचा पासवर्ड विसरल्यास, तो <code className="bg-gray-100 px-1 py-0.5 rounded text-rose-600 font-mono">/src/data.ts</code> फाईल मधील <code className="bg-gray-100 px-1 py-0.5 rounded text-rose-600 font-mono">ADMIN_SECURITY</code> मधे तपासू किंवा बदलू शकता.
+            </p>
+            <p className="text-[10px] text-emerald-700 mt-2 font-bold">
+              डिफॉल्ट पासवर्ड: <span className="bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">{ADMIN_SECURITY.adminPasscode}</span> (श्री. सुशांत देसाई यांच्या मोबाईलचे पहिले ४ अंक)
+            </p>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Admin Session Security Bar */}
+      <div className="bg-emerald-950 text-white rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 border border-emerald-800 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="bg-emerald-800 text-amber-400 p-2 rounded-xl border border-emerald-700">
+            <Unlock size={18} />
+          </div>
+          <div>
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-widest block">प्रशासक सत्र सक्रिय • Admin Session Active</span>
+            </div>
+            <strong className="text-sm font-black block mt-0.5">स्वागत आहे, {CONTACT_INFO.ownerName} !</strong>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setIsChangingPasscode(!isChangingPasscode)}
+            className="bg-emerald-800 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors border border-emerald-700 shadow-sm active:scale-95"
+          >
+            <KeyRound size={14} />
+            <span>पासकोड बदला (Change PIN)</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors shadow-md active:scale-95"
+          >
+            <LogOut size={14} />
+            <span>सुरक्षित बाहेर पडा (Log Out)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Change Passcode panel */}
+      {isChangingPasscode && (
+        <div className="bg-emerald-50 border border-emerald-100 p-5 rounded-2xl space-y-4 animate-fade-in">
+          <div className="flex items-center justify-between border-b border-emerald-100/60 pb-3">
+            <div className="flex items-center gap-2">
+              <KeyRound className="text-emerald-700" size={18} />
+              <h5 className="font-black text-emerald-950 text-sm">प्रशासकीय पासवर्ड बदला (Update Admin Passcode)</h5>
+            </div>
+            <button 
+              onClick={() => {
+                setIsChangingPasscode(false);
+                setNewPasscodeVal('');
+              }}
+              className="text-xs font-bold text-gray-500 hover:text-gray-700"
+            >
+              रद्द करा (Cancel)
+            </button>
+          </div>
+          <form onSubmit={handleSaveNewPasscode} className="flex flex-col sm:flex-row items-end gap-3 max-w-md">
+            <div className="w-full space-y-1.5">
+              <label className="block text-[11px] font-bold text-emerald-900 uppercase tracking-wider">नवीन पासवर्ड प्रविष्ट करा (Enter New PIN)</label>
+              <input
+                type="text"
+                maxLength={12}
+                value={newPasscodeVal}
+                onChange={(e) => setNewPasscodeVal(e.target.value)}
+                placeholder="उदा. 1234"
+                className="w-full bg-white border border-emerald-200/80 rounded-xl px-3 py-2 text-sm font-bold text-emerald-950 outline-none focus:ring-2 focus:ring-emerald-500"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl shrink-0 h-[38px] flex items-center justify-center shadow-sm active:scale-95"
+            >
+              सेव्ह करा (Save PIN)
+            </button>
+          </form>
+          {passcodeSuccessMsg && (
+            <div className="text-emerald-800 text-xs font-bold flex items-center gap-1.5 bg-white px-3 py-2 rounded-lg border border-emerald-100 w-fit">
+              <CheckCircle className="text-emerald-600 animate-pulse" size={15} />
+              {passcodeSuccessMsg}
+            </div>
+          )}
+        </div>
+      )}
       {/* Overview Cards Panel */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-2 flex flex-col justify-between">
